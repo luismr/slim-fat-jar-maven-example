@@ -62,6 +62,7 @@ This project demonstrates how to create both fat and slim JARs with Maven, inclu
   - [🔍 Code Quality (`quality.yml`)](#-code-quality-qualityyml)
   - [🚀 Release Pipeline (`release.yml`)](#-release-pipeline-releaseyml)
   - [📊 Workflow Status](#-workflow-status)
+- [👨‍💻 Author](#-author)
 - [📝 Notes](#-notes)
 
 ## 🚀 Features
@@ -561,3 +562,29 @@ This project includes comprehensive GitHub Actions workflows:
 - JUnit 5 tests verify the application functionality
 - All dependencies are included in the executable JARs
 - GitHub Actions automatically build, test, and verify all JAR files
+
+## 👨‍💻 Author
+
+**Luis Machado Reis** - *The JAR Whisperer* 🥃
+
+[![GitHub](https://img.shields.io/badge/GitHub-luismr-black?logo=github&logoColor=white)](https://github.com/luismr)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Luis%20Machado%20Reis-blue?logo=linkedin&logoColor=white)](https://linkedin.com/in/luismachadoreis)
+[![Twitter](https://img.shields.io/badge/Twitter-@luismr-blue?logo=twitter&logoColor=white)](https://twitter.com/luismr)
+
+> *"I don't always create JARs, but when I do, I prefer them fat and executable."* - The Most Interesting Developer in the World
+
+A seasoned Software Architect with 20+ years of experience who has probably seen more Maven builds than most people have seen sunsets. Known for architecting systems that handle $300M+ transactions without breaking a sweat, Luis has mastered the art of making complex things look simple (like this README).
+
+**Fun Facts:**
+- 🏗️ **Architecture Wizard** - Built systems that handle more money than most countries' GDP
+- ☁️ **Cloud Native Enthusiast** - Believes Kubernetes is the answer to everything (even relationship problems)
+- 🐧 **Linux Aficionado** - Can make a server dance with just a few commands
+- ☕ **Java Evangelist** - Convinced that Java 21 is the best thing since sliced bread
+- 🎯 **JAR Specialist** - Can create fat JARs so good, they should be served with a side of fries
+
+*When he's not busy making JARs executable or explaining why microservices are better than your ex, Luis can be found mentoring teams and making the impossible look easy.*
+
+**Connect with Luis:**
+- 🐙 [GitHub](https://github.com/luismr) - Where the magic happens
+- 💼 [LinkedIn](https://linkedin.com/in/luismachadoreis) - Professional networking
+- 🐦 [Twitter](https://twitter.com/luismr) - Random tech thoughts and dad jokes
