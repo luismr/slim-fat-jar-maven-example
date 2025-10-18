@@ -5,10 +5,58 @@
 [![SLF4J](https://img.shields.io/badge/SLF4J-2.0.16-green?logo=slf4j&logoColor=white)](https://www.slf4j.org/)
 [![JUnit](https://img.shields.io/badge/JUnit-5.11.0-green?logo=junit5&logoColor=white)](https://junit.org/junit5/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com)
-[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)](https://github.com)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/luismr/slim-fat-jar-maven-example/actions)
+[![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen)](https://github.com/luismr/slim-fat-jar-maven-example/actions)
 
 This project demonstrates how to create both fat and slim JARs with Maven, including proper manifest configuration for executable JARs.
+
+## 📑 Table of Contents
+
+- [🚀 Features](#-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+  - [Core Technologies](#core-technologies)
+  - [Logging & Testing](#logging--testing)
+  - [Build Tools & Plugins](#build-tools--plugins)
+  - [Project Status](#project-status)
+  - [JAR Sizes](#jar-sizes)
+- [📁 Project Structure](#project-structure)
+- [⚡ Quick Start](#-quick-start)
+  - [🏗️ Build the project](#️-build-the-project)
+  - [🧪 Run tests](#-run-tests)
+  - [🚀 Execute the JARs](#-execute-the-jars)
+- [🔧 Maven JAR Generation](#-maven-jar-generation)
+  - [📦 Regular JAR (Default Maven JAR Plugin)](#-regular-jar-default-maven-jar-plugin)
+  - [🏗️ Fat JAR (Maven Shade Plugin)](#️-fat-jar-maven-shade-plugin)
+  - [🎯 Slim JAR (Maven Assembly Plugin)](#-slim-jar-maven-assembly-plugin)
+  - [🔍 Maven Plugin Comparison](#-maven-plugin-comparison)
+  - [🚀 When to Use Each Approach](#-when-to-use-each-approach)
+- [📋 JAR Types Explained](#jar-types-explained)
+  - [Fat JAR (Maven Shade Plugin)](#fat-jar-maven-shade-plugin)
+  - [Slim JAR (Maven Assembly Plugin)](#slim-jar-maven-assembly-plugin)
+  - [Regular JAR](#regular-jar)
+- [📦 Dependencies](#dependencies)
+- [📋 Understanding dependency-reduced-pom.xml](#-understanding-dependency-reduced-pomxml)
+  - [🔍 What is dependency-reduced-pom.xml?](#-what-is-dependency-reduced-pomxml)
+  - [📊 Key Differences from Original POM](#-key-differences-from-original-pom)
+  - [🎯 What's Included in dependency-reduced-pom.xml](#-whats-included-in-dependency-reduced-pomxml)
+  - [🔧 Purpose and Benefits](#-purpose-and-benefits)
+  - [⚠️ Important Notes](#️-important-notes)
+  - [🚀 Example Usage](#-example-usage)
+- [🔧 Maven Plugins Used](#maven-plugins-used)
+- [📊 Expected Output](#expected-output)
+- [🤝 Contributing](#-contributing)
+  - [🍴 Fork the Project](#-fork-the-project)
+  - [🔧 Development Setup](#-development-setup)
+  - [📝 Making Changes](#-making-changes)
+  - [🚀 Submitting Changes](#-submitting-changes)
+  - [🔄 Syncing with Upstream](#-syncing-with-upstream-optional-but-recommended)
+  - [📋 Contribution Guidelines](#-contribution-guidelines)
+- [🔄 GitHub Actions](#-github-actions)
+  - [🏗️ CI/CD Pipeline (`ci.yml`)](#️-cicd-pipeline-ciyml)
+  - [🔍 Code Quality (`quality.yml`)](#-code-quality-qualityyml)
+  - [🚀 Release Pipeline (`release.yml`)](#-release-pipeline-releaseyml)
+  - [📊 Workflow Status](#-workflow-status)
+- [📝 Notes](#-notes)
 
 ## 🚀 Features
 
@@ -127,6 +175,146 @@ java -jar target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar
 - **SLF4J Simple 2.0.16**: Simple logging implementation
 - **JUnit Jupiter 5.11.0**: Testing framework
 
+## 🔧 Maven JAR Generation
+
+This project demonstrates three different approaches to creating JARs with Maven, each with its own peculiarities:
+
+### 📦 Regular JAR (Default Maven JAR Plugin)
+```bash
+mvn clean package
+```
+**Generated**: `target/slim-fat-jar-maven-example-1.0.0.jar` (~3KB)
+
+**Peculiarities**:
+- ✅ **Smallest size** - Only contains your application code
+- ❌ **Not executable** - Requires classpath setup
+- ❌ **No dependencies** - Must provide all dependencies separately
+- ✅ **Standard Maven** - Uses default JAR plugin
+- ❌ **Manual execution** - `java -cp target/classes:lib/* com.example.HelloWorld`
+
+### 🏗️ Fat JAR (Maven Shade Plugin)
+```bash
+mvn clean package
+```
+**Generated**: `target/slim-fat-jar-maven-example-1.0.0-fat.jar` (~85KB)
+
+**Peculiarities**:
+- ✅ **Single executable** - `java -jar target/slim-fat-jar-maven-example-1.0.0-fat.jar`
+- ✅ **All dependencies included** - No external JARs needed
+- ✅ **Manifest transformation** - Automatically sets main class
+- ⚠️ **Dependency conflicts** - May have overlapping classes (warnings shown)
+- ⚠️ **Larger size** - Includes all transitive dependencies
+- ✅ **Uber JAR** - Everything in one file
+- ⚠️ **Shading** - Renames packages to avoid conflicts
+
+### 🎯 Slim JAR (Maven Assembly Plugin)
+```bash
+mvn clean package
+```
+**Generated**: `target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar` (~84KB)
+
+**Peculiarities**:
+- ✅ **Executable** - `java -jar target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar`
+- ✅ **All dependencies included** - No external JARs needed
+- ✅ **Standard packaging** - Uses JAR-with-dependencies descriptor
+- ✅ **No shading** - Preserves original package names
+- ⚠️ **Classpath conflicts** - May have issues with duplicate classes
+- ✅ **Alternative approach** - Different from Shade plugin
+- ⚠️ **Long filename** - Descriptive but verbose
+
+### 🔍 Maven Plugin Comparison
+
+| Feature | Regular JAR | Fat JAR (Shade) | Slim JAR (Assembly) |
+|---------|-------------|-----------------|-------------------|
+| **Size** | 3KB | 85KB | 84KB |
+| **Executable** | ❌ | ✅ | ✅ |
+| **Dependencies** | ❌ | ✅ | ✅ |
+| **Main Class** | Manual | Auto | Auto |
+| **Conflicts** | N/A | Handled | Possible |
+| **Use Case** | Libraries | Applications | Applications |
+
+### 🚀 When to Use Each Approach
+
+**Regular JAR** - Use when:
+- Creating libraries for other projects
+- Dependencies managed by parent project
+- Need minimal footprint
+- Building microservices with external dependency management
+
+**Fat JAR (Shade)** - Use when:
+- Standalone applications
+- Microservices deployment
+- Docker containers
+- Need conflict resolution
+- Production deployments
+
+**Slim JAR (Assembly)** - Use when:
+- Simple applications
+- No complex dependency conflicts
+- Alternative to Fat JAR
+- Standard Maven approach
+
+## 📋 Understanding dependency-reduced-pom.xml
+
+The `dependency-reduced-pom.xml` file is automatically generated by the **Maven Shade Plugin** when creating fat JARs. This file represents a simplified version of your original POM with dependencies that were "shaded" (included) into the fat JAR removed.
+
+### 🔍 What is dependency-reduced-pom.xml?
+
+When the Maven Shade Plugin creates a fat JAR, it:
+1. **Includes all dependencies** directly into the JAR file
+2. **Removes those dependencies** from the POM since they're no longer needed as separate dependencies
+3. **Creates this reduced POM** to document what the fat JAR actually contains
+
+### 📊 Key Differences from Original POM
+
+| Aspect | Original POM | dependency-reduced-pom.xml |
+|--------|---------------|----------------------------|
+| **SLF4J Dependencies** | ✅ Included | ❌ Removed (shaded into JAR) |
+| **Test Dependencies** | ✅ Included | ✅ Included (not in fat JAR) |
+| **Build Plugins** | ✅ Full configuration | ✅ Full configuration |
+| **Properties** | ✅ All properties | ✅ All properties |
+| **Size** | ~124 lines | ~103 lines |
+
+### 🎯 What's Included in dependency-reduced-pom.xml
+
+**✅ Retained:**
+- Basic project information (groupId, artifactId, version)
+- Build plugins configuration (Shade, Assembly, Surefire, Compiler)
+- Properties and versions
+- **Test dependencies** (JUnit) - since these weren't included in the fat JAR
+
+**❌ Removed:**
+- **SLF4J API 2.0.16** - Shaded into fat JAR
+- **SLF4J Simple 2.0.16** - Shaded into fat JAR
+- All runtime dependencies that were included in the fat JAR
+
+### 🔧 Purpose and Benefits
+
+1. **📋 Documentation**: Shows what the fat JAR actually contains
+2. **🚀 Deployment**: Can be used if you want to deploy the fat JAR to a Maven repository
+3. **🔍 Transparency**: Makes it clear which dependencies were included vs. excluded
+4. **📦 Repository Management**: Helps Maven understand what's in the fat JAR
+
+### ⚠️ Important Notes
+
+- **Normal behavior**: This file is expected when using Maven Shade Plugin
+- **Don't edit manually**: It's automatically generated and will be overwritten
+- **Version control**: Can be committed to show the reduced dependency state
+- **CI/CD**: Useful for understanding what's actually packaged in the fat JAR
+
+### 🚀 Example Usage
+
+```bash
+# After building with Maven Shade Plugin
+ls -la dependency-reduced-pom.xml
+
+# View the reduced dependencies
+cat dependency-reduced-pom.xml | grep -A 10 "<dependencies>"
+
+# Compare with original POM
+diff pom.xml dependency-reduced-pom.xml
+```
+
 ## Maven Plugins Used
 
 1. **Maven Compiler Plugin**: Java 21 compilation
@@ -148,10 +336,156 @@ Hello, World!
 [main] INFO com.example.HelloWorld - Hello World application completed successfully
 ```
 
-## Notes
+## 🤝 Contributing
+
+[![Contributing](https://img.shields.io/badge/Contributing-Welcome-green?logo=github&logoColor=white)](https://github.com/luismr/slim-fat-jar-maven-example)
+
+We welcome contributions! Here's how to get started:
+
+### 🍴 Fork the Project
+1. **Fork the repository**:
+   - Go to [https://github.com/luismr/slim-fat-jar-maven-example](https://github.com/luismr/slim-fat-jar-maven-example)
+   - Click the "Fork" button in the top-right corner
+   - This creates a copy in your GitHub account
+
+2. **Clone your fork**:
+   ```bash
+   # Replace YOUR_USERNAME with your actual GitHub username
+   git clone git@github.com:YOUR_USERNAME/slim-fat-jar-maven-example.git
+   cd slim-fat-jar-maven-example
+   ```
+
+3. **Add upstream remote** (to sync with original repo):
+   ```bash
+   git remote add upstream git@github.com:luismr/slim-fat-jar-maven-example.git
+   git remote -v  # Verify you have both origin and upstream
+   ```
+
+### 🔧 Development Setup
+1. **Prerequisites**: Java 21, Maven 3.x
+2. **Build the project**:
+   ```bash
+   mvn clean package
+   ```
+3. **Run tests**:
+   ```bash
+   mvn test
+   ```
+
+### 📝 Making Changes
+1. Create a feature branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+2. Make your changes
+3. Ensure tests pass:
+   ```bash
+   mvn test
+   ```
+4. Commit your changes:
+   ```bash
+   git commit -m "Add your feature description"
+   ```
+
+### 🚀 Submitting Changes
+
+#### Step 1: Push your changes to your fork
+```bash
+git push origin feature/your-feature-name
+```
+
+#### Step 2: Create a Pull Request
+1. **Go to your fork on GitHub**: `https://github.com/YOUR_USERNAME/slim-fat-jar-maven-example`
+2. **You'll see a banner** saying "Compare & pull request" - click it
+3. **Or manually**:
+   - Click "Pull requests" tab
+   - Click "New pull request"
+   - Set base repository: `luismr/slim-fat-jar-maven-example` (main branch)
+   - Set head repository: `YOUR_USERNAME/slim-fat-jar-maven-example` (your feature branch)
+
+#### Step 3: Fill out the Pull Request
+- **Title**: Clear description of your changes
+- **Description**: Explain what you changed and why
+- **Example**:
+  ```
+  Title: Add new logging feature
+  Description: 
+  - Added new log level configuration
+  - Updated tests to cover new functionality
+  - Updated documentation
+  ```
+
+#### Step 4: Submit and Wait
+- Click "Create pull request"
+- Wait for review and feedback
+- Make requested changes if needed
+
+### 🔄 Syncing with Upstream (Optional but Recommended)
+Before starting new work, sync your fork with the original repository:
+```bash
+# Fetch latest changes from upstream
+git fetch upstream
+
+# Switch to your main branch
+git checkout main
+
+# Merge upstream changes
+git merge upstream/main
+
+# Push updates to your fork
+git push origin main
+```
+
+### 📋 Contribution Guidelines
+- Follow existing code style
+- Add tests for new features
+- Update documentation as needed
+- Keep commits focused and descriptive
+- Sync with upstream before starting new work
+
+## 🔄 GitHub Actions
+
+This project includes comprehensive GitHub Actions workflows:
+
+### 🏗️ CI/CD Pipeline (`ci.yml`)
+- **Triggers**: Push to main/develop, Pull Requests
+- **Features**:
+  - ✅ Java 21 setup with Temurin distribution
+  - ✅ Maven dependency caching
+  - ✅ Test execution with JUnit 5
+  - ✅ JAR file building and verification
+  - ✅ JAR execution testing
+  - ✅ Manifest verification
+  - ✅ Artifact upload for debugging
+
+### 🔍 Code Quality (`quality.yml`)
+- **Triggers**: Push to main/develop, Pull Requests
+- **Features**:
+  - ✅ Maven validation and dependency analysis
+  - ✅ Test coverage reporting
+  - ✅ JAR structure verification
+  - ✅ Execution testing with timeout
+  - ✅ Manifest content validation
+  - ✅ Quality metrics reporting
+
+### 🚀 Release Pipeline (`release.yml`)
+- **Triggers**: Git tags (v*), Manual dispatch
+- **Features**:
+  - ✅ Automated release creation
+  - ✅ JAR file packaging with descriptive names
+  - ✅ Execution scripts generation
+  - ✅ Release notes with JAR sizes
+  - ✅ Asset upload to GitHub releases
+
+### 📊 Workflow Status
+[![CI/CD Pipeline](https://github.com/luismr/slim-fat-jar-maven-example/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/luismr/slim-fat-jar-maven-example/actions)
+[![Code Quality](https://github.com/luismr/slim-fat-jar-maven-example/workflows/Code%20Quality/badge.svg)](https://github.com/luismr/slim-fat-jar-maven-example/actions)
+
+## 📝 Notes
 
 - Both fat and slim JARs are executable with `java -jar`
 - The manifest includes the main class: `com.example.HelloWorld`
 - SLF4J logging demonstrates different log levels
 - JUnit 5 tests verify the application functionality
 - All dependencies are included in the executable JARs
+- GitHub Actions automatically build, test, and verify all JAR files

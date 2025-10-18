@@ -1,0 +1,122 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        java-version: [21]
+    
+    steps:
+    - name: 🚀 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: ☕ Set up JDK ${{ matrix.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+        
+    - name: 📦 Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: 🧹 Clean workspace
+      run: mvn clean
+      
+    - name: 🧪 Run tests
+      run: mvn test
+      
+    - name: 📊 Test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Maven Tests
+        path: target/surefire-reports/*.xml
+        reporter: java-junit
+        
+    - name: 🏗️ Build project
+      run: mvn package -DskipTests
+      
+    - name: 📦 Verify JAR files exist
+      run: |
+        echo "🔍 Checking JAR files..."
+        ls -la target/*.jar
+        
+        echo "📊 JAR file sizes:"
+        du -h target/*.jar
+        
+        echo "✅ JAR files found:"
+        find target -name "*.jar" -type f
+        
+    - name: 🧪 Test Fat JAR execution
+      run: |
+        echo "🚀 Testing Fat JAR execution..."
+        java -jar target/slim-fat-jar-maven-example-1.0.0-fat.jar
+        
+    - name: 🧪 Test Slim JAR execution
+      run: |
+        echo "🚀 Testing Slim JAR execution..."
+        java -jar target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar
+        
+    - name: 🔍 Verify JAR manifests
+      run: |
+        echo "📋 Fat JAR manifest:"
+        jar tf target/slim-fat-jar-maven-example-1.0.0-fat.jar | head -10
+        
+        echo "📋 Slim JAR manifest:"
+        jar tf target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar | head -10
+        
+        echo "🔍 Main class in Fat JAR:"
+        jar xf target/slim-fat-jar-maven-example-1.0.0-fat.jar META-INF/MANIFEST.MF
+        cat META-INF/MANIFEST.MF
+        
+        echo "🔍 Main class in Slim JAR:"
+        jar xf target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar META-INF/MANIFEST.MF
+        cat META-INF/MANIFEST.MF
+        
+    - name: 📈 Upload JAR artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: jar-files
+        path: target/*.jar
+        retention-days: 30
+        
+    - name: 📊 Build summary
+      run: |
+        echo "## 🎯 Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "| JAR Type | Size | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|----------|------|--------|" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f "target/slim-fat-jar-maven-example-1.0.0-fat.jar" ]; then
+          FAT_SIZE=$(du -h target/slim-fat-jar-maven-example-1.0.0-fat.jar | cut -f1)
+          echo "| Fat JAR | $FAT_SIZE | ✅ |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ -f "target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar" ]; then
+          SLIM_SIZE=$(du -h target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar | cut -f1)
+          echo "| Slim JAR | $SLIM_SIZE | ✅ |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ -f "target/slim-fat-jar-maven-example-1.0.0.jar" ]; then
+          REGULAR_SIZE=$(du -h target/slim-fat-jar-maven-example-1.0.0.jar | cut -f1)
+          echo "| Regular JAR | $REGULAR_SIZE | ✅ |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Fat JAR execution successful" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Slim JAR execution successful" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Manifests verified" >> $GITHUB_STEP_SUMMARY

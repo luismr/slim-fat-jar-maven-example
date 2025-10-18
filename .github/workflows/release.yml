@@ -1,0 +1,143 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚀 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: ☕ Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: 📦 Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: 🧹 Clean and build
+      run: |
+        mvn clean package
+        
+    - name: 🧪 Test JARs
+      run: |
+        echo "Testing Fat JAR..."
+        java -jar target/slim-fat-jar-maven-example-1.0.0-fat.jar
+        
+        echo "Testing Slim JAR..."
+        java -jar target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar
+        
+    - name: 📦 Create release assets
+      run: |
+        mkdir -p release-assets
+        
+        # Copy JARs with descriptive names
+        cp target/slim-fat-jar-maven-example-1.0.0-fat.jar release-assets/slim-fat-jar-maven-example-fat.jar
+        cp target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar release-assets/slim-fat-jar-maven-example-slim.jar
+        cp target/slim-fat-jar-maven-example-1.0.0.jar release-assets/slim-fat-jar-maven-example-regular.jar
+        
+        # Create execution scripts
+        echo '#!/bin/bash' > release-assets/run-fat-jar.sh
+        echo 'java -jar slim-fat-jar-maven-example-fat.jar' >> release-assets/run-fat-jar.sh
+        chmod +x release-assets/run-fat-jar.sh
+        
+        echo '#!/bin/bash' > release-assets/run-slim-jar.sh
+        echo 'java -jar slim-fat-jar-maven-example-slim.jar' >> release-assets/run-slim-jar.sh
+        chmod +x release-assets/run-slim-jar.sh
+        
+        # Create README for release
+        cat > release-assets/README.md << 'EOF'
+        # Slim Fat JAR Maven Example - Release Assets
+        
+        ## JAR Files
+        
+        - **slim-fat-jar-maven-example-fat.jar** - Fat JAR with all dependencies (recommended)
+        - **slim-fat-jar-maven-example-slim.jar** - Slim JAR with all dependencies
+        - **slim-fat-jar-maven-example-regular.jar** - Regular JAR (requires classpath setup)
+        
+        ## Execution Scripts
+        
+        - **run-fat-jar.sh** - Execute the fat JAR
+        - **run-slim-jar.sh** - Execute the slim JAR
+        
+        ## Usage
+        
+        ### Fat JAR (Recommended)
+        ```bash
+        java -jar slim-fat-jar-maven-example-fat.jar
+        # or
+        ./run-fat-jar.sh
+        ```
+        
+        ### Slim JAR
+        ```bash
+        java -jar slim-fat-jar-maven-example-slim.jar
+        # or
+        ./run-slim-jar.sh
+        ```
+        
+        ## Requirements
+        
+        - Java 21 or higher
+        - No additional dependencies required (all included in JARs)
+        EOF
+        
+        echo "📦 Release assets created:"
+        ls -la release-assets/
+        
+    - name: 📊 Generate release notes
+      id: release_notes
+      run: |
+        echo "notes<<EOF" >> $GITHUB_OUTPUT
+        echo "## 🎉 Release ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 📦 JAR Files" >> $GITHUB_OUTPUT
+        echo "- **Fat JAR**: $(du -h target/slim-fat-jar-maven-example-1.0.0-fat.jar | cut -f1) - All dependencies included" >> $GITHUB_OUTPUT
+        echo "- **Slim JAR**: $(du -h target/slim-fat-jar-maven-example-1.0.0-slim-jar-with-dependencies.jar | cut -f1) - All dependencies included" >> $GITHUB_OUTPUT
+        echo "- **Regular JAR**: $(du -h target/slim-fat-jar-maven-example-1.0.0.jar | cut -f1) - Requires classpath setup" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### 🚀 Quick Start" >> $GITHUB_OUTPUT
+        echo "\`\`\`bash" >> $GITHUB_OUTPUT
+        echo "# Download and run fat JAR (recommended)" >> $GITHUB_OUTPUT
+        echo "java -jar slim-fat-jar-maven-example-fat.jar" >> $GITHUB_OUTPUT
+        echo "\`\`\`" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo "### ✅ Features" >> $GITHUB_OUTPUT
+        echo "- Java 21 with Maven 3.x" >> $GITHUB_OUTPUT
+        echo "- SLF4J logging with simple implementation" >> $GITHUB_OUTPUT
+        echo "- JUnit 5 unit tests" >> $GITHUB_OUTPUT
+        echo "- Executable JARs with proper manifests" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+    - name: 🏷️ Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: ${{ steps.release_notes.outputs.notes }}
+        draft: false
+        prerelease: false
+        
+    - name: 📤 Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: release-assets/
+        asset_name: slim-fat-jar-maven-example-${{ github.ref_name }}.zip
+        asset_content_type: application/zip
