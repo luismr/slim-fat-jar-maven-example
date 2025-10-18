@@ -42,6 +42,12 @@ This project demonstrates how to create both fat and slim JARs with Maven, inclu
   - [🔧 Purpose and Benefits](#-purpose-and-benefits)
   - [⚠️ Important Notes](#️-important-notes)
   - [🚀 Example Usage](#-example-usage)
+- [🚀 Maven Release Support](#-maven-release-support)
+  - [📋 Release Features](#-release-features)
+  - [🔧 Release Configuration](#-release-configuration)
+  - [🚀 How to Release](#-how-to-release)
+  - [📦 Release Artifacts](#-release-artifacts)
+  - [🎯 Release Workflow](#-release-workflow)
 - [🔧 Maven Plugins Used](#maven-plugins-used)
 - [📊 Expected Output](#expected-output)
 - [🤝 Contributing](#-contributing)
@@ -82,6 +88,7 @@ This project demonstrates how to create both fat and slim JARs with Maven, inclu
 [![Maven Assembly Plugin](https://img.shields.io/badge/Assembly%20Plugin-3.7.1-blue?logo=apache-maven&logoColor=white)](https://maven.apache.org/plugins/maven-assembly-plugin/)
 [![Maven Surefire Plugin](https://img.shields.io/badge/Surefire%20Plugin-3.4.0-blue?logo=apache-maven&logoColor=white)](https://maven.apache.org/plugins/maven-surefire-plugin/)
 [![JaCoCo](https://img.shields.io/badge/JaCoCo-0.8.12-green?logo=java&logoColor=white)](https://www.jacoco.org/jacoco/)
+[![Maven Release Plugin](https://img.shields.io/badge/Release%20Plugin-3.1.0-blue?logo=apache-maven&logoColor=white)](https://maven.apache.org/plugins/maven-release-plugin/)
 
 ### Project Status
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com)
@@ -316,6 +323,68 @@ cat dependency-reduced-pom.xml | grep -A 10 "<dependencies>"
 diff pom.xml dependency-reduced-pom.xml
 ```
 
+## 🚀 Maven Release Support
+
+This project includes comprehensive Maven Release Plugin support for automated version management and releases.
+
+### 📋 Release Features
+
+- **✅ Automated versioning** - Semantic version management
+- **✅ Git tagging** - Automatic tag creation (v1.0.0 format)
+- **✅ GitHub Releases** - Automated release creation
+- **✅ Artifact generation** - All JAR types included
+- **✅ Source/Javadoc** - Complete documentation packages
+- **✅ Development version** - Automatic next version bump
+
+### 🔧 Release Configuration
+
+**Maven Release Plugin** configured with:
+- **SCM Integration** - Git repository connection
+- **Tag Format** - `v@{project.version}` (e.g., v1.0.0)
+- **Release Profile** - Source and Javadoc generation
+- **Auto Versioning** - Submodule version management
+
+### 🚀 How to Release
+
+#### Manual Release (GitHub Actions)
+1. Go to **Actions** tab
+2. Select **Maven Release** workflow
+3. Click **Run workflow**
+4. Provide release version (e.g., 1.0.0)
+5. Provide next version (e.g., 1.1.0-SNAPSHOT)
+6. Click **Run workflow**
+
+#### Command Line Release
+```bash
+# Prepare release (dry run)
+mvn release:prepare
+
+# Perform release
+mvn release:perform
+
+# Or combined
+mvn release:prepare release:perform
+```
+
+### 📦 Release Artifacts
+
+Each release includes:
+- **Fat JAR** - `slim-fat-jar-maven-example-{version}-fat.jar`
+- **Slim JAR** - `slim-fat-jar-maven-example-{version}-slim.jar`
+- **Regular JAR** - `slim-fat-jar-maven-example-{version}.jar`
+- **Source JAR** - `slim-fat-jar-maven-example-{version}-sources.jar`
+- **Javadoc JAR** - `slim-fat-jar-maven-example-{version}-javadoc.jar`
+
+### 🎯 Release Workflow
+
+1. **Version Update** - Updates POM to release version
+2. **Git Tag** - Creates version tag (v1.0.0)
+3. **Build Artifacts** - Generates all JAR types
+4. **Test Execution** - Runs all tests
+5. **GitHub Release** - Creates GitHub release
+6. **Artifact Upload** - Uploads JARs to release
+7. **Next Version** - Updates to next development version
+
 ## Maven Plugins Used
 
 1. **Maven Compiler Plugin**: Java 21 compilation
@@ -323,6 +392,7 @@ diff pom.xml dependency-reduced-pom.xml
 3. **Maven Shade Plugin**: Fat JAR creation
 4. **Maven Assembly Plugin**: Slim JAR creation
 5. **JaCoCo Plugin**: Code coverage reporting
+6. **Maven Release Plugin**: Automated releases
 
 ## Expected Output
 

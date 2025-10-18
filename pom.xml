@@ -13,6 +13,13 @@
     <name>Slim Fat JAR Maven Example</name>
     <description>Example project demonstrating fat and slim JARs with Maven</description>
 
+    <scm>
+        <connection>scm:git:git@github.com:luismr/slim-fat-jar-maven-example.git</connection>
+        <developerConnection>scm:git:git@github.com:luismr/slim-fat-jar-maven-example.git</developerConnection>
+        <url>https://github.com/luismr/slim-fat-jar-maven-example</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -24,6 +31,7 @@
         <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
         <maven.assembly.plugin.version>3.7.1</maven.assembly.plugin.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <maven.release.plugin.version>3.1.0</maven.release.plugin.version>
     </properties>
 
     <dependencies>
@@ -140,6 +148,58 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Maven Release Plugin for automated releases -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven.release.plugin.version}</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <pushChanges>true</pushChanges>
+                    <localCheckout>true</localCheckout>
+                    <arguments>-P release</arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
