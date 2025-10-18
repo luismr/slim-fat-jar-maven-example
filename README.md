@@ -81,6 +81,7 @@ This project demonstrates how to create both fat and slim JARs with Maven, inclu
 [![Maven Shade Plugin](https://img.shields.io/badge/Shade%20Plugin-3.6.0-blue?logo=apache-maven&logoColor=white)](https://maven.apache.org/plugins/maven-shade-plugin/)
 [![Maven Assembly Plugin](https://img.shields.io/badge/Assembly%20Plugin-3.7.1-blue?logo=apache-maven&logoColor=white)](https://maven.apache.org/plugins/maven-assembly-plugin/)
 [![Maven Surefire Plugin](https://img.shields.io/badge/Surefire%20Plugin-3.4.0-blue?logo=apache-maven&logoColor=white)](https://maven.apache.org/plugins/maven-surefire-plugin/)
+[![JaCoCo](https://img.shields.io/badge/JaCoCo-0.8.12-green?logo=java&logoColor=white)](https://www.jacoco.org/jacoco/)
 
 ### Project Status
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com)
@@ -321,6 +322,7 @@ diff pom.xml dependency-reduced-pom.xml
 2. **Maven Surefire Plugin**: Test execution
 3. **Maven Shade Plugin**: Fat JAR creation
 4. **Maven Assembly Plugin**: Slim JAR creation
+5. **JaCoCo Plugin**: Code coverage reporting
 
 ## Expected Output
 

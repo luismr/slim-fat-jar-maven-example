@@ -49,13 +49,19 @@ jobs:
         
     - name: 🧪 Run tests with coverage
       run: |
-        echo "🧪 Running tests..."
-        mvn test
+        echo "🧪 Running tests with JaCoCo coverage..."
+        mvn clean test jacoco:report
         
-    - name: 📊 Test coverage
+    - name: 📊 Generate coverage report
       run: |
-        echo "📊 Generating test report..."
-        mvn surefire-report:report
+        echo "📊 JaCoCo coverage report generated at:"
+        ls -la target/site/jacoco/
+        
+        echo "📊 Coverage summary:"
+        if [ -f "target/site/jacoco/jacoco.csv" ]; then
+          echo "Coverage details:"
+          cat target/site/jacoco/jacoco.csv
+        fi
         
     - name: 🏗️ Build project
       run: |
